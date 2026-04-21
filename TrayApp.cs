@@ -10,6 +10,7 @@ internal sealed class TrayApp : ApplicationContext
     private readonly ContextMenuStrip _contextMenu;
     private readonly HotkeyWindow _hotkeyWindow;
     private readonly Icon _icon;
+    private bool _overlayOpen;
 
     public TrayApp()
     {
@@ -91,8 +92,11 @@ internal sealed class TrayApp : ApplicationContext
 
     private void TakeSnip()
     {
+        if (_overlayOpen) return;
+        _overlayOpen = true;
         using var overlay = new OverlayForm();
         overlay.ShowDialog();
+        _overlayOpen = false;
 
         if (overlay.SelectedBitmap is not { } bitmap)
             return;
