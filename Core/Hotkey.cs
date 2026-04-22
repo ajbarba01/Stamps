@@ -19,7 +19,7 @@ public readonly record struct Hotkey(HotkeyModifiers Modifiers, Keys Key)
     /// </summary>
     public override string ToString()
     {
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         if (Modifiers.HasFlag(HotkeyModifiers.Control)) sb.Append("Ctrl+");
         if (Modifiers.HasFlag(HotkeyModifiers.Alt))     sb.Append("Alt+");
         if (Modifiers.HasFlag(HotkeyModifiers.Shift))   sb.Append("Shift+");
