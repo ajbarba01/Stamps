@@ -1,5 +1,6 @@
 using System.Windows.Forms;
 using Microsoft.Win32;
+using Stamps.Core.Services;
 
 namespace Stamps.App;
 
@@ -13,7 +14,7 @@ namespace Stamps.App;
 /// The registered command line always includes <c>--autostart</c>, which <c>Program.cs</c>
 /// inspects to decide whether to launch silently to tray or open the main window.
 /// </remarks>
-public sealed class StartupManager
+public sealed class StartupManager : IStartupManager
 {
     private const string RunKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
     private const string ValueName = "Stamps";

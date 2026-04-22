@@ -59,6 +59,17 @@ public interface ITweak
     IReadOnlyList<SettingDescriptor> Settings { get; }
 
     /// <summary>
+    /// Mutable runtime values for <see cref="Settings"/>. Same contract as
+    /// <see cref="IAction.Values"/>: the host edits this bag and then calls
+    /// <see cref="PersistSettings"/>.
+    /// </summary>
+    SettingsValues Values { get; }
+
+    /// <summary>Flushes the current <see cref="Values"/> to the tweak's settings file. The
+    /// tweak owns the file format; this method is the host's only persistence hook.</summary>
+    void PersistSettings();
+
+    /// <summary>
     /// Optional escape hatch for tweaks whose settings cannot be expressed declaratively.
     /// Return <c>null</c> (default) to have the host render <see cref="Settings"/>; return
     /// a control to replace the auto-rendered panel entirely.

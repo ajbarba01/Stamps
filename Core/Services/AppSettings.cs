@@ -24,4 +24,11 @@ public sealed class AppSettings
 
     /// <summary>Last tweak opened in the UI; used to restore context on next launch.</summary>
     public string? LastOpenedTweakId { get; set; }
+
+    /// <summary>
+    /// Ids of tweaks the user has explicitly enabled. Tweaks not present here are treated as
+    /// enabled by default (so adding a new tweak does not require a user opt-in); ids
+    /// removed via <see cref="DisabledTweakIds"/> override that default.
+    /// </summary>
+    public HashSet<string> DisabledTweakIds { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 }

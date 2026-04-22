@@ -18,9 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Phase 2 UI dependencies; added now so the host platform is ready. -->
+    <!-- Markdig is used as a parser only; READMEs are rendered into native WinForms
+         controls by Ui/Controls/MarkdownView so we do not require a browser runtime. -->
     <PackageReference Include="Markdig" Version="0.37.0" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2792.45" />
   </ItemGroup>
 
   <ItemGroup>

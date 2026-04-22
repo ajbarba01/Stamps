@@ -17,8 +17,8 @@ namespace Stamps.App;
 /// (for tests, for plugins) is a refactor localised to this file.
 /// </para>
 /// <para>
-/// Phase 1 uses <see cref="PlaceholderMainWindow"/> as the <see cref="IMainWindow"/>
-/// implementation. Phase 2 swaps in the real main window at this single call site.
+/// The <see cref="IMainWindow"/> implementation (<see cref="MainWindow"/>) is the only
+/// reference from <c>App/</c> into <c>Ui/</c>; everything else flows through the interface.
 /// </para>
 /// </remarks>
 internal sealed class StampsApplicationContext : ApplicationContext
@@ -52,7 +52,8 @@ internal sealed class StampsApplicationContext : ApplicationContext
             "Stamps");
         Directory.CreateDirectory(dataDir);
 
-        _logger = new FileLogger(Path.Combine(dataDir, "logs"));
+        var logDir = Path.Combine(dataDir, "logs");
+        _logger = new FileLogger(logDir);
         _logger.Info($"Stamps starting (autostart={launchedAsAutostart}).");
 
         _settings = new SettingsStore(dataDir, _logger);
@@ -60,7 +61,7 @@ internal sealed class StampsApplicationContext : ApplicationContext
         _hotkeys = new HotkeyService(_logger);
         _tweakRegistry = new TweakRegistry();
 
-        _mainWindow = new PlaceholderMainWindow();
+        _mainWindow = new MainWindow(_tweakRegistry, _settings, _startup, logDir);
         _tray = new TrayIconController(_mainWindow, _startup);
         _notifier = new NotifyIconNotifier(_tray.NotifyIcon);
 

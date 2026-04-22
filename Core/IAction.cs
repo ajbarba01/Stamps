@@ -44,6 +44,17 @@ public interface IAction
     IReadOnlyList<SettingDescriptor> Settings { get; }
 
     /// <summary>
+    /// Mutable runtime values for <see cref="Settings"/>. The host edits this bag in response
+    /// to user input and then calls <see cref="PersistSettings"/>; the action is free to
+    /// observe changes here for behavioural updates (e.g., re-validate).
+    /// </summary>
+    SettingsValues Values { get; }
+
+    /// <summary>Flushes the current <see cref="Values"/> to the tweak's settings file. The
+    /// tweak owns the file format; this method is the host's only persistence hook.</summary>
+    void PersistSettings();
+
+    /// <summary>
     /// Executes the action. Called on the UI thread. Implementations should guard against
     /// re-entry and should not block — long work must be dispatched off the UI thread.
     /// Exceptions are caught and logged by the host; they do not propagate.

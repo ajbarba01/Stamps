@@ -28,6 +28,11 @@ internal static class Program
         Application.SetCompatibleTextRenderingDefault(defaultValue: false);
         Application.SetHighDpiMode(HighDpiMode.SystemAware);
 
+        // Install the WinForms sync context now so the composition root can capture it.
+        // Application.Run installs one too, but only after Run is called — and the context
+        // is constructed before then.
+        SynchronizationContext.SetSynchronizationContext(new WindowsFormsSynchronizationContext());
+
         using var context = new StampsApplicationContext(instance, launchedAsAutostart: autostart);
         Application.Run(context);
     }
