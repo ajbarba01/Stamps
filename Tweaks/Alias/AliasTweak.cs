@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.IO;
 using Stamps.Core;
 using Stamps.Core.Services;
 
@@ -18,7 +19,7 @@ public sealed class AliasTweak : ITweak
     public string  Id          => "alias";
     public string  Title       => "Alias";
     public string  Description => "Remap one key combo to send another.";
-    public Icon    Icon        => SystemIcons.Application;
+    public Icon    Icon        => new Icon(Path.Combine(AppContext.BaseDirectory, "Tweaks", "Alias", "icon.ico"));
     public Version SdkVersion  => new(1, 0);
 
     public IReadOnlyList<IAction>  BuiltInActions   => _factory.Actions;

@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.IO;
 using Stamps.Core;
 using Stamps.Core.Services;
 
@@ -17,7 +18,7 @@ public sealed class SnipTweak : ITweak
     public string Id => "snip";
     public string Title => "Snip";
     public string Description => "Capture a region of the screen and copy it to the clipboard.";
-    public Icon Icon => SystemIcons.Application;
+    public Icon Icon => new Icon(Path.Combine(AppContext.BaseDirectory, "Tweaks", "Snip", "icon.ico"));
     public Version SdkVersion => new(1, 0);
 
     public IReadOnlyList<IAction> BuiltInActions => new IAction[] { _action };
