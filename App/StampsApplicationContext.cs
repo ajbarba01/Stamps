@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Threading;
 using Stamps.Core;
 using Stamps.Core.Services;
+using Stamps.Tweaks.Alias;
 using Stamps.Tweaks.Snip;
 using Stamps.Ui;
 using Stamps.Ui.Theme;
@@ -68,6 +69,7 @@ internal sealed class StampsApplicationContext : IDisposable, ITweakManager
     private void RegisterTweaks()
     {
         AddTweak(new SnipTweak());
+        AddTweak(new AliasTweak());
     }
 
     private void AddTweak(ITweak tweak)

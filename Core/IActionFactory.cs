@@ -22,4 +22,10 @@ public interface IActionFactory
     /// and a unique <see cref="IAction.Id"/>.
     /// </summary>
     IAction Create(SettingsValues initial);
+
+    /// <summary>
+    /// Removes a user-created action, unregistering its hotkey and deleting its persisted state.
+    /// No-op if <paramref name="action"/> is not owned by this factory.
+    /// </summary>
+    void Delete(IAction action);
 }

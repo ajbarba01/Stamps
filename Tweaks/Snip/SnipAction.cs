@@ -5,11 +5,11 @@ namespace Stamps.Tweaks.Snip;
 
 internal sealed class SnipAction : IAction
 {
-    private readonly IHotkeyService _hotkeys;
-    private readonly INotifier _notifier;
-    private readonly ILogger _logger;
-    private readonly ISettingsScope _scope;
-    private readonly SnipSettings _settings;
+    private IHotkeyService? _hotkeys;
+    private INotifier? _notifier;
+    private ILogger? _logger;
+    private ISettingsScope? _scope;
+    private SnipSettings _settings;
     private IHotkeyBinding? _binding;
     private Hotkey? _hotkey;
 
@@ -32,35 +32,45 @@ internal sealed class SnipAction : IAction
     public IReadOnlyList<SettingDescriptor> Settings => Array.Empty<SettingDescriptor>();
     public SettingsValues Values { get; } = new();
 
-    public SnipAction(
-        IHotkeyService hotkeys,
-        INotifier notifier,
-        ILogger logger,
-        ISettingsScope scope,
-        SnipSettings settings)
+    internal SnipAction(SnipSettings settings)
+    {
+        _settings = settings;
+        _hotkey = Stamps.Core.Hotkey.TryParse(settings.Hotkey, out var hk) ? hk : null;
+    }
+
+    internal void Activate(IHotkeyService hotkeys, INotifier notifier, ILogger logger, ISettingsScope scope, SnipSettings settings)
     {
         _hotkeys = hotkeys;
         _notifier = notifier;
         _logger = logger;
         _scope = scope;
         _settings = settings;
-
         _hotkey = Stamps.Core.Hotkey.TryParse(settings.Hotkey, out var hk) ? hk : null;
         UpdateRegistration();
+    }
+
+    internal void Deactivate()
+    {
+        _binding?.Dispose();
+        _binding = null;
+        _hotkeys = null;
+        _notifier = null;
+        _logger = null;
+        _scope = null;
     }
 
     private void UpdateRegistration()
     {
         _binding?.Dispose();
         _binding = null;
-        if (!_settings.Enabled || _hotkey is null) return;
+        if (_hotkeys is null || !_settings.Enabled || _hotkey is null) return;
 
         _binding = _hotkeys.TryRegister(_hotkey.Value, Invoke, out var result);
         if (result != HotkeyBindResult.Success)
-            _logger.Warn($"Snip: failed to register hotkey {_hotkey} ({result}).");
+            _logger!.Warn($"Snip: failed to register hotkey {_hotkey} ({result}).");
     }
 
-    public void PersistSettings() => _scope.Save(_settings);
+    public void PersistSettings() => _scope?.Save(_settings);
 
     public void Invoke()
     {
@@ -70,14 +80,14 @@ internal sealed class SnipAction : IAction
             if (window.ShowDialog() == true && window.CapturedBitmap is { } bmp)
             {
                 System.Windows.Clipboard.SetImage(bmp);
-                _notifier.ShowBrief("Snip", "Screenshot copied to clipboard.");
+                _notifier?.ShowBrief("Snip", "Screenshot copied to clipboard.");
             }
         }
         catch (Exception ex)
         {
-            _logger.Error("Snip: overlay failed.", ex);
+            _logger?.Error("Snip: overlay failed.", ex);
         }
     }
 
-    internal void Cleanup() => _binding?.Dispose();
+    internal void Cleanup() => Deactivate();
 }

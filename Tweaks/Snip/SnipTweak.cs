@@ -6,9 +6,13 @@ namespace Stamps.Tweaks.Snip;
 
 public sealed class SnipTweak : ITweak
 {
-    private ITweakHost? _host;
     private SnipSettings _settings = new();
-    private SnipAction? _action;
+    private readonly SnipAction _action;
+
+    public SnipTweak()
+    {
+        _action = new SnipAction(_settings);
+    }
 
     public string Id => "snip";
     public string Title => "Snip";
@@ -16,8 +20,7 @@ public sealed class SnipTweak : ITweak
     public Icon Icon => SystemIcons.Application;
     public Version SdkVersion => new(1, 0);
 
-    public IReadOnlyList<IAction> BuiltInActions =>
-        _action is null ? Array.Empty<IAction>() : new IAction[] { _action };
+    public IReadOnlyList<IAction> BuiltInActions => new IAction[] { _action };
 
     public IActionFactory? UserActionFactory => null;
     public IReadOnlyList<SettingDescriptor> Settings => Array.Empty<SettingDescriptor>();
@@ -27,10 +30,9 @@ public sealed class SnipTweak : ITweak
 
     public void Initialize(ITweakHost host)
     {
-        _host = host;
         _settings = host.Settings.Load<SnipSettings>();
-        _action = new SnipAction(host.Hotkeys, host.Notifier, host.Logger, host.Settings, _settings);
+        _action.Activate(host.Hotkeys, host.Notifier, host.Logger, host.Settings, _settings);
     }
 
-    public void Shutdown() => _action?.Cleanup();
+    public void Shutdown() => _action.Deactivate();
 }
