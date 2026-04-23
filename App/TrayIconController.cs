@@ -1,6 +1,5 @@
 using System.Drawing;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
@@ -11,9 +10,6 @@ namespace Stamps.App;
 
 internal sealed class TrayIconController : IDisposable
 {
-    [DllImport("user32.dll")]
-    private static extern bool SetForegroundWindow(IntPtr hWnd);
-
     private readonly TaskbarIcon _icon;
     private readonly ContextMenu _contextMenu;
     private readonly MenuItem _startupItem;
@@ -59,19 +55,10 @@ internal sealed class TrayIconController : IDisposable
             ToolTipText = "Stamps",
             ContextMenu = _contextMenu,
         };
-        _icon.TrayLeftMouseUp  += (_, _) => _mainWindow.ShowOrFocus();
-        // Ensure our process is the foreground owner so the menu closes on click-away.
-        _icon.TrayRightMouseUp += (_, _) => EnsureForeground();
+        _icon.TrayLeftMouseUp += (_, _) => _mainWindow.ShowOrFocus();
         _icon.ForceCreate(enablesEfficiencyMode: false);
 
         _startup.Changed += OnStartupChanged;
-    }
-
-    private static void EnsureForeground()
-    {
-        if (Application.Current.MainWindow is not Window wnd) return;
-        var hwnd = new WindowInteropHelper(wnd).EnsureHandle();
-        if (hwnd != IntPtr.Zero) SetForegroundWindow(hwnd);
     }
 
     private static void OnContextMenuOpened(object sender, RoutedEventArgs e)

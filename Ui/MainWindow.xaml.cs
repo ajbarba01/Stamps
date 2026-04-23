@@ -33,8 +33,8 @@ public partial class MainWindow : Window, IMainWindow
         InitializeComponent();
 
         _home = new HomePage(registry, settings, tweakManager, OpenTweakDetail);
-        _appSettings = new AppSettingsPage(settings, startup);
-        _about = new AboutPage(logDirectory);
+        _appSettings = new AppSettingsPage(settings, startup, logDirectory);
+        _about = new AboutPage();
 
         Navigate(_home);
     }
@@ -55,6 +55,11 @@ public partial class MainWindow : Window, IMainWindow
     {
         _isDisposing = true;
         Dispatcher.Invoke(Close);
+    }
+
+    private void OnExit(object sender, RoutedEventArgs e)
+    {
+        Application.Current.Shutdown();
     }
 
     protected override void OnSourceInitialized(EventArgs e)

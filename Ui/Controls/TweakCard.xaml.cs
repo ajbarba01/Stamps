@@ -29,18 +29,31 @@ public partial class TweakCard : UserControl
         EnableToggle.Checked   += (_, _) => EnableToggled?.Invoke(this, true);
         EnableToggle.Unchecked += (_, _) => EnableToggled?.Invoke(this, false);
 
-        MouseLeftButtonUp += OnCardClick;
+        MouseLeftButtonDown += OnCardMouseDown;
+        MouseLeftButtonUp += OnCardMouseUp;
         CardBorder.MouseEnter += (_, _) =>
             CardBorder.Background = (Brush)FindResource("Stamps.Background.Elevated");
         CardBorder.MouseLeave += (_, _) =>
             CardBorder.Background = (Brush)FindResource("Stamps.Background.Card");
     }
 
-    private void OnCardClick(object sender, MouseButtonEventArgs e)
+    private void OnCardMouseDown(object sender, MouseButtonEventArgs e)
     {
-        // Don't open if the toggle was what was clicked.
-        if (e.OriginalSource is FrameworkElement fe &&
-            IsDescendantOf(fe, EnableToggle)) return;
+        if (e.OriginalSource is FrameworkElement fe && IsDescendantOf(fe, EnableToggle))
+            return;
+        Mouse.Capture(this);
+        e.Handled = true;
+    }
+
+    private void OnCardMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        if (!IsMouseCaptured) return;
+        ReleaseMouseCapture();
+
+        if (!IsMouseOver) return;
+
+        if (e.OriginalSource is FrameworkElement fe && IsDescendantOf(fe, EnableToggle))
+            return;
 
         OpenRequested?.Invoke(this, EventArgs.Empty);
     }

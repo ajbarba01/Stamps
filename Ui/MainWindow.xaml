@@ -1,84 +1,126 @@
-<Window x:Class="Stamps.Ui.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-        Title="Stamps"
-        Width="960" Height="640"
-        MinWidth="720" MinHeight="480"
-        WindowStartupLocation="CenterScreen">
+<Window
+    x:Class="Stamps.Ui.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Title="Stamps"
+    Width="960"
+    Height="640"
+    MinWidth="720"
+    MinHeight="480"
+    WindowStartupLocation="CenterScreen">
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="220"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="220" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <!-- Sidebar -->
-        <Border Grid.Column="0"
-                Background="{DynamicResource Stamps.Background.Secondary}"
-                BorderBrush="{DynamicResource Stamps.Border.Default}"
-                BorderThickness="0,0,1,0">
+        <!--  Sidebar  -->
+        <Border
+            Grid.Column="0"
+            Background="{DynamicResource Stamps.Background.Secondary}"
+            BorderBrush="{DynamicResource Stamps.Border.Default}"
+            BorderThickness="0,0,1,0">
             <DockPanel>
-                <!-- App name header -->
-                <Border DockPanel.Dock="Top" Padding="24,20,24,16">
-                    <TextBlock Text="Stamps"
-                               FontFamily="{DynamicResource Stamps.FontFamily}"
-                               FontSize="{DynamicResource Stamps.FontSize.Subtitle}"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource Stamps.Text.Primary}"/>
+                <!--  App name header  -->
+                <Border Padding="24,20,24,16" DockPanel.Dock="Top">
+                    <TextBlock
+                        FontFamily="{DynamicResource Stamps.FontFamily}"
+                        FontSize="{DynamicResource Stamps.FontSize.Subtitle}"
+                        FontWeight="SemiBold"
+                        Foreground="{DynamicResource Stamps.Text.Primary}"
+                        Text="Stamps" />
                 </Border>
 
-                <!-- Nav items -->
-                <StackPanel Margin="8,0,8,8">
-                    <RadioButton x:Name="NavTweaks"
-                                 IsChecked="True"
-                                 Style="{StaticResource SidebarNavItemStyle}"
-                                 Checked="OnNavChecked">
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="AppsAddIn24" Margin="0,0,10,0" FontSize="16"/>
-                            <TextBlock Text="Tweaks" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </RadioButton>
-                    <RadioButton x:Name="NavSettings"
-                                 Style="{StaticResource SidebarNavItemStyle}"
-                                 Checked="OnNavChecked">
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="Settings24" Margin="0,0,10,0" FontSize="16"/>
-                            <TextBlock Text="Settings" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </RadioButton>
-                    <RadioButton x:Name="NavAbout"
-                                 Style="{StaticResource SidebarNavItemStyle}"
-                                 Checked="OnNavChecked">
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="Info24" Margin="0,0,10,0" FontSize="16"/>
-                            <TextBlock Text="About" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </RadioButton>
-                </StackPanel>
+                <!--  Nav items  -->
+                <Grid Margin="8,0,8,8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!--  TOP NAV  -->
+                    <StackPanel Grid.Row="0">
+
+                        <RadioButton
+                            x:Name="NavTweaks"
+                            Checked="OnNavChecked"
+                            IsChecked="True"
+                            Style="{StaticResource SidebarNavItemStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon
+                                    Margin="0,0,10,0"
+                                    FontSize="16"
+                                    Symbol="AppsAddIn24" />
+                                <TextBlock VerticalAlignment="Center" Text="Tweaks" />
+                            </StackPanel>
+                        </RadioButton>
+
+                        <RadioButton
+                            x:Name="NavSettings"
+                            Checked="OnNavChecked"
+                            Style="{StaticResource SidebarNavItemStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon
+                                    Margin="0,0,10,0"
+                                    FontSize="16"
+                                    Symbol="Settings24" />
+                                <TextBlock VerticalAlignment="Center" Text="Settings" />
+                            </StackPanel>
+                        </RadioButton>
+
+                        <RadioButton
+                            x:Name="NavAbout"
+                            Checked="OnNavChecked"
+                            Style="{StaticResource SidebarNavItemStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon
+                                    Margin="0,0,10,0"
+                                    FontSize="16"
+                                    Symbol="Info24" />
+                                <TextBlock VerticalAlignment="Center" Text="About" />
+                            </StackPanel>
+                        </RadioButton>
+
+                    </StackPanel>
+
+                    <!--  BOTTOM EXIT  -->
+                    <Button
+                        x:Name="ExitButton"
+                        Grid.Row="1"
+                        Margin="8,8,8,8"
+                        Padding="16,8"
+                        HorizontalAlignment="Stretch"
+                        Click="OnExit"
+                        Content="Exit" />
+                </Grid>
             </DockPanel>
         </Border>
 
-        <!-- Right content area -->
+        <!--  Right content area  -->
         <Grid Grid.Column="1" Background="{DynamicResource Stamps.Background.Primary}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <!-- Page header -->
-            <Border Grid.Row="0" Padding="28,20,28,12"
-                    BorderBrush="{DynamicResource Stamps.Border.Default}"
-                    BorderThickness="0,0,0,1">
-                <TextBlock x:Name="HeaderTitle"
-                           FontFamily="{DynamicResource Stamps.FontFamily}"
-                           FontSize="{DynamicResource Stamps.FontSize.Title}"
-                           FontWeight="SemiBold"
-                           Foreground="{DynamicResource Stamps.Text.Primary}"/>
+            <!--  Page header  -->
+            <Border
+                Grid.Row="0"
+                Padding="28,20,28,12"
+                BorderBrush="{DynamicResource Stamps.Border.Default}"
+                BorderThickness="0,0,0,1">
+                <TextBlock
+                    x:Name="HeaderTitle"
+                    FontFamily="{DynamicResource Stamps.FontFamily}"
+                    FontSize="{DynamicResource Stamps.FontSize.Title}"
+                    FontWeight="SemiBold"
+                    Foreground="{DynamicResource Stamps.Text.Primary}" />
             </Border>
 
-            <!-- Page content -->
-            <ContentPresenter x:Name="ContentArea" Grid.Row="1"/>
+            <!--  Page content  -->
+            <ContentPresenter x:Name="ContentArea" Grid.Row="1" />
         </Grid>
     </Grid>
 </Window>

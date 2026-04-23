@@ -1,108 +1,141 @@
-<UserControl x:Class="Stamps.Ui.Pages.AppSettingsPage"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="28,20,28,0">
-        <StackPanel MaxWidth="560" HorizontalAlignment="Left">
+<UserControl
+    x:Class="Stamps.Ui.Pages.AppSettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+    <ScrollViewer Margin="28,20,28,0" VerticalScrollBarVisibility="Auto">
+        <StackPanel
+            MinWidth="300"
+            MaxWidth="560"
+            HorizontalAlignment="Left">
 
-            <!-- Start with Windows -->
-            <Border Background="{DynamicResource Stamps.Background.Card}"
-                    CornerRadius="8" Padding="16,12" Margin="0,0,0,8">
+            <!--  Start with Windows  -->
+            <Border
+                Margin="0,0,0,8"
+                Padding="16,12"
+                Background="{DynamicResource Stamps.Background.Card}"
+                CornerRadius="8">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Start with Windows"
-                                   FontFamily="{DynamicResource Stamps.FontFamily}"
-                                   FontSize="{DynamicResource Stamps.FontSize.Body}"
-                                   Foreground="{DynamicResource Stamps.Text.Primary}"/>
-                        <TextBlock Text="Launch Stamps when you sign in"
-                                   FontFamily="{DynamicResource Stamps.FontFamily}"
-                                   FontSize="{DynamicResource Stamps.FontSize.Caption}"
-                                   Foreground="{DynamicResource Stamps.Text.Secondary}"
-                                   Margin="0,2,0,0"/>
+                        <TextBlock
+                            FontFamily="{DynamicResource Stamps.FontFamily}"
+                            FontSize="{DynamicResource Stamps.FontSize.Body}"
+                            Foreground="{DynamicResource Stamps.Text.Primary}"
+                            Text="Start with Windows" />
+                        <TextBlock
+                            Margin="0,2,0,0"
+                            FontFamily="{DynamicResource Stamps.FontFamily}"
+                            FontSize="{DynamicResource Stamps.FontSize.Caption}"
+                            Foreground="{DynamicResource Stamps.Text.Secondary}"
+                            Text="Launch Stamps when you sign in" />
                     </StackPanel>
-                    <ui:ToggleSwitch x:Name="StartupToggle"
-                                     Grid.Column="1"
-                                     VerticalAlignment="Center"
-                                     Checked="OnStartupToggled"
-                                     Unchecked="OnStartupToggled"/>
+                    <ui:ToggleSwitch
+                        x:Name="StartupToggle"
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        Checked="OnStartupToggled"
+                        Unchecked="OnStartupToggled" />
                 </Grid>
             </Border>
 
-            <!-- Launch minimized -->
-            <Border Background="{DynamicResource Stamps.Background.Card}"
-                    CornerRadius="8" Padding="16,12" Margin="0,0,0,8">
+            <!--  Launch minimized  -->
+            <Border
+                Margin="0,0,0,8"
+                Padding="16,12"
+                Background="{DynamicResource Stamps.Background.Card}"
+                CornerRadius="8">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Launch minimized to tray"
-                                   FontFamily="{DynamicResource Stamps.FontFamily}"
-                                   FontSize="{DynamicResource Stamps.FontSize.Body}"
-                                   Foreground="{DynamicResource Stamps.Text.Primary}"/>
-                        <TextBlock Text="Don't show the window on startup"
-                                   FontFamily="{DynamicResource Stamps.FontFamily}"
-                                   FontSize="{DynamicResource Stamps.FontSize.Caption}"
-                                   Foreground="{DynamicResource Stamps.Text.Secondary}"
-                                   Margin="0,2,0,0"/>
+                        <TextBlock
+                            FontFamily="{DynamicResource Stamps.FontFamily}"
+                            FontSize="{DynamicResource Stamps.FontSize.Body}"
+                            Foreground="{DynamicResource Stamps.Text.Primary}"
+                            Text="Launch minimized to tray" />
+                        <TextBlock
+                            Margin="0,2,0,0"
+                            FontFamily="{DynamicResource Stamps.FontFamily}"
+                            FontSize="{DynamicResource Stamps.FontSize.Caption}"
+                            Foreground="{DynamicResource Stamps.Text.Secondary}"
+                            Text="Don't show the window on startup" />
                     </StackPanel>
-                    <ui:ToggleSwitch x:Name="LaunchMinimizedToggle"
-                                     Grid.Column="1"
-                                     VerticalAlignment="Center"
-                                     Checked="OnLaunchMinimizedToggled"
-                                     Unchecked="OnLaunchMinimizedToggled"/>
+                    <ui:ToggleSwitch
+                        x:Name="LaunchMinimizedToggle"
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        Checked="OnLaunchMinimizedToggled"
+                        Unchecked="OnLaunchMinimizedToggled" />
                 </Grid>
             </Border>
 
-            <!-- Notifications -->
-            <Border Background="{DynamicResource Stamps.Background.Card}"
-                    CornerRadius="8" Padding="16,12" Margin="0,0,0,8">
+            <!--  Notifications  -->
+            <Border
+                Margin="0,0,0,8"
+                Padding="16,12"
+                Background="{DynamicResource Stamps.Background.Card}"
+                CornerRadius="8">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0"
-                               Text="Notifications"
-                               FontFamily="{DynamicResource Stamps.FontFamily}"
-                               FontSize="{DynamicResource Stamps.FontSize.Body}"
-                               Foreground="{DynamicResource Stamps.Text.Primary}"
-                               VerticalAlignment="Center"/>
-                    <ComboBox x:Name="NotificationsCombo"
-                              Grid.Column="1"
-                              Width="140"
-                              VerticalAlignment="Center"
-                              SelectionChanged="OnNotificationsChanged"/>
+                    <TextBlock
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        FontFamily="{DynamicResource Stamps.FontFamily}"
+                        FontSize="{DynamicResource Stamps.FontSize.Body}"
+                        Foreground="{DynamicResource Stamps.Text.Primary}"
+                        Text="Notifications" />
+                    <ComboBox
+                        x:Name="NotificationsCombo"
+                        Grid.Column="1"
+                        Width="140"
+                        VerticalAlignment="Center"
+                        SelectionChanged="OnNotificationsChanged" />
                 </Grid>
             </Border>
 
-            <!-- Theme -->
-            <Border Background="{DynamicResource Stamps.Background.Card}"
-                    CornerRadius="8" Padding="16,12" Margin="0,0,0,8">
+            <!--  Theme  -->
+            <Border
+                Margin="0,0,0,8"
+                Padding="16,12"
+                Background="{DynamicResource Stamps.Background.Card}"
+                CornerRadius="8">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0"
-                               Text="Theme"
-                               FontFamily="{DynamicResource Stamps.FontFamily}"
-                               FontSize="{DynamicResource Stamps.FontSize.Body}"
-                               Foreground="{DynamicResource Stamps.Text.Primary}"
-                               VerticalAlignment="Center"/>
-                    <ComboBox x:Name="ThemeCombo"
-                              Grid.Column="1"
-                              Width="140"
-                              VerticalAlignment="Center"
-                              SelectionChanged="OnThemeChanged"/>
+                    <TextBlock
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        FontFamily="{DynamicResource Stamps.FontFamily}"
+                        FontSize="{DynamicResource Stamps.FontSize.Body}"
+                        Foreground="{DynamicResource Stamps.Text.Primary}"
+                        Text="Theme" />
+                    <ComboBox
+                        x:Name="ThemeCombo"
+                        Grid.Column="1"
+                        Width="140"
+                        VerticalAlignment="Center"
+                        SelectionChanged="OnThemeChanged" />
                 </Grid>
             </Border>
 
+            <Button
+                x:Name="OpenLogsButton"
+                Margin="0,8,0,0"
+                Padding="16,8"
+                Click="OnOpenLogsClick"
+                Content="Open log folder" />
         </StackPanel>
+
     </ScrollViewer>
 </UserControl>

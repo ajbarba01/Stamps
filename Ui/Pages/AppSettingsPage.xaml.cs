@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using Stamps.Core.Services;
@@ -9,12 +11,16 @@ public partial class AppSettingsPage : UserControl, IPage
 {
     private readonly ISettingsStore _settings;
     private readonly IStartupManager _startup;
+    private readonly string _logDirectory;
     private bool _suppressEvents;
 
     public string Title => "Settings";
 
-    public AppSettingsPage(ISettingsStore settings, IStartupManager startup)
+    public AppSettingsPage(ISettingsStore settings, IStartupManager startup, string logDirectory)
     {
+        _logDirectory = logDirectory;
+        ArgumentException.ThrowIfNullOrWhiteSpace(logDirectory);
+
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(startup);
 
@@ -80,5 +86,18 @@ public partial class AppSettingsPage : UserControl, IPage
         if (_suppressEvents) return;
         if (Enum.TryParse<AppTheme>(ThemeCombo.SelectedItem?.ToString(), out var theme))
             ThemeService.Apply(theme);
+    }
+
+    private void OnOpenLogsClick(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Directory.CreateDirectory(_logDirectory);
+            Process.Start(new ProcessStartInfo("explorer.exe", $"\"{_logDirectory}\"")
+            {
+                UseShellExecute = true,
+            });
+        }
+        catch { }
     }
 }
