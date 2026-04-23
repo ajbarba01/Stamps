@@ -12,10 +12,7 @@ namespace Stamps.App;
 internal sealed class TrayIconController : IDisposable
 {
     [DllImport("user32.dll")]
-    private static extern bool GetCursorPos(out POINT pt);
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct POINT { public int X; public int Y; }
+    private static extern bool SetForegroundWindow(IntPtr hWnd);
 
     private readonly TaskbarIcon _icon;
     private readonly ContextMenu _contextMenu;
@@ -60,21 +57,21 @@ internal sealed class TrayIconController : IDisposable
         {
             Icon = LoadEmbeddedIcon(),
             ToolTipText = "Stamps",
+            ContextMenu = _contextMenu,
         };
         _icon.TrayLeftMouseUp  += (_, _) => _mainWindow.ShowOrFocus();
-        _icon.TrayRightMouseUp += (_, _) => OpenContextMenuAtCursor();
+        // Ensure our process is the foreground owner so the menu closes on click-away.
+        _icon.TrayRightMouseUp += (_, _) => EnsureForeground();
         _icon.ForceCreate(enablesEfficiencyMode: false);
 
         _startup.Changed += OnStartupChanged;
     }
 
-    private void OpenContextMenuAtCursor()
+    private static void EnsureForeground()
     {
-        GetCursorPos(out var pt);
-        _contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.AbsolutePoint;
-        _contextMenu.HorizontalOffset = pt.X;
-        _contextMenu.VerticalOffset = pt.Y;
-        _contextMenu.IsOpen = true;
+        if (Application.Current.MainWindow is not Window wnd) return;
+        var hwnd = new WindowInteropHelper(wnd).EnsureHandle();
+        if (hwnd != IntPtr.Zero) SetForegroundWindow(hwnd);
     }
 
     private static void OnContextMenuOpened(object sender, RoutedEventArgs e)

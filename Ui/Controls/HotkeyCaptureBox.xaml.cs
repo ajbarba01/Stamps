@@ -9,10 +9,15 @@ namespace Stamps.Ui.Controls;
 public partial class HotkeyCaptureBox : UserControl
 {
     private Hotkey? _hotkey;
+    private bool _suppressing;
 
     public event EventHandler? HotkeyChanged;
 
-    public HotkeyCaptureBox() => InitializeComponent();
+    public HotkeyCaptureBox()
+    {
+        InitializeComponent();
+        Unloaded += OnUnloaded;
+    }
 
     public Hotkey? Hotkey
     {
@@ -28,14 +33,27 @@ public partial class HotkeyCaptureBox : UserControl
 
     private void OnGotFocus(object sender, RoutedEventArgs e)
     {
-        HotkeyCaptureSuppressor.Suppress();
+        if (!_suppressing)
+        {
+            _suppressing = true;
+            HotkeyCaptureSuppressor.Suppress();
+        }
         Display.Text = "Press a key combination…";
     }
 
     private void OnLostFocus(object sender, RoutedEventArgs e)
     {
-        HotkeyCaptureSuppressor.Resume();
+        EndSuppression();
         UpdateDisplay();
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e) => EndSuppression();
+
+    private void EndSuppression()
+    {
+        if (!_suppressing) return;
+        _suppressing = false;
+        HotkeyCaptureSuppressor.Resume();
     }
 
     private void OnPreviewKeyDown(object sender, KeyEventArgs e)

@@ -22,15 +22,17 @@ public partial class MainWindow : Window, IMainWindow
         TweakRegistry registry,
         ISettingsStore settings,
         IStartupManager startup,
-        string logDirectory)
+        string logDirectory,
+        ITweakManager tweakManager)
     {
         ArgumentNullException.ThrowIfNull(registry);
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(startup);
+        ArgumentNullException.ThrowIfNull(tweakManager);
 
         InitializeComponent();
 
-        _home = new HomePage(registry, settings, OpenTweakDetail);
+        _home = new HomePage(registry, settings, tweakManager, OpenTweakDetail);
         _appSettings = new AppSettingsPage(settings, startup);
         _about = new AboutPage(logDirectory);
 

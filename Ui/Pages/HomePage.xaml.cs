@@ -10,22 +10,26 @@ public partial class HomePage : UserControl, IPage
 {
     private readonly TweakRegistry _registry;
     private readonly ISettingsStore _settings;
+    private readonly ITweakManager _tweakManager;
     private readonly Action<ITweak> _onOpenTweak;
 
     public string Title => "Tweaks";
 
-    public HomePage(TweakRegistry registry, ISettingsStore settings, Action<ITweak> onOpenTweak)
+    public HomePage(TweakRegistry registry, ISettingsStore settings, ITweakManager tweakManager, Action<ITweak> onOpenTweak)
     {
         ArgumentNullException.ThrowIfNull(registry);
         ArgumentNullException.ThrowIfNull(settings);
+        ArgumentNullException.ThrowIfNull(tweakManager);
         ArgumentNullException.ThrowIfNull(onOpenTweak);
 
         _registry = registry;
         _settings = settings;
+        _tweakManager = tweakManager;
         _onOpenTweak = onOpenTweak;
 
         InitializeComponent();
-        Refresh();
+        // Refresh on Loaded (not constructor) so RegisterTweaks() has already run.
+        Loaded += (_, _) => Refresh();
     }
 
     private void OnSearchChanged(object sender, TextChangedEventArgs e) => Refresh();
@@ -75,8 +79,7 @@ public partial class HomePage : UserControl, IPage
 
     private void SetTweakEnabled(string tweakId, bool enabled)
     {
-        var disabled = _settings.App.DisabledTweakIds;
-        bool changed = enabled ? disabled.Remove(tweakId) : disabled.Add(tweakId);
-        if (changed) _settings.SaveApp();
+        if (enabled) _tweakManager.Enable(tweakId);
+        else _tweakManager.Disable(tweakId);
     }
 }

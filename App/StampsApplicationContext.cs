@@ -9,8 +9,10 @@ using Stamps.Ui.Theme;
 
 namespace Stamps.App;
 
-internal sealed class StampsApplicationContext : IDisposable
+internal sealed class StampsApplicationContext : IDisposable, ITweakManager
 {
+    private sealed record TweakEntry(ITweak Tweak, TweakHost Host);
+
     private readonly FileLogger _logger;
     private readonly SettingsStore _settings;
     private readonly HotkeyService _hotkeys;
@@ -19,7 +21,8 @@ internal sealed class StampsApplicationContext : IDisposable
     private readonly TrayIconController _tray;
     private readonly NotifyIconNotifier _notifier;
     private readonly TweakRegistry _tweakRegistry;
-    private readonly List<ITweak> _initializedTweaks = new();
+    private readonly Dictionary<string, TweakEntry> _tweakEntries = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _activeTweakIds = new(StringComparer.OrdinalIgnoreCase);
     private readonly SingleInstance _singleInstance;
     private readonly Dispatcher _dispatcher;
     private bool _disposed;
@@ -48,7 +51,7 @@ internal sealed class StampsApplicationContext : IDisposable
         _hotkeys = new HotkeyService(_logger);
         _tweakRegistry = new TweakRegistry();
 
-        _mainWindow = new MainWindow(_tweakRegistry, _settings, _startup, logDir);
+        _mainWindow = new MainWindow(_tweakRegistry, _settings, _startup, logDir, this);
         ThemeService.Apply(AppTheme.System);
         _tray = new TrayIconController(_mainWindow, _startup);
         _notifier = new NotifyIconNotifier(_tray.TaskbarIcon);
@@ -64,14 +67,45 @@ internal sealed class StampsApplicationContext : IDisposable
 
     private void RegisterTweaks()
     {
-        var snip = new SnipTweak();
-        _tweakRegistry.Register(snip);
-        var host = new TweakHost(_hotkeys, _notifier, _settings.ScopeFor(snip.Id), _logger);
-        snip.Initialize(host);
-        _initializedTweaks.Add(snip);
+        AddTweak(new SnipTweak());
     }
 
-    private bool ShouldOpenWindowOnStartup(bool launchedAsAutostart)
+    private void AddTweak(ITweak tweak)
+    {
+        _tweakRegistry.Register(tweak);
+        var host = new TweakHost(_hotkeys, _notifier, _settings.ScopeFor(tweak.Id), _logger);
+        _tweakEntries[tweak.Id] = new TweakEntry(tweak, host);
+
+        if (!_settings.App.DisabledTweakIds.Contains(tweak.Id))
+        {
+            tweak.Initialize(host);
+            _activeTweakIds.Add(tweak.Id);
+        }
+    }
+
+    public void Enable(string tweakId)
+    {
+        if (!_tweakEntries.TryGetValue(tweakId, out var entry)) return;
+        if (_activeTweakIds.Contains(tweakId)) return;
+
+        _settings.App.DisabledTweakIds.Remove(tweakId);
+        _settings.SaveApp();
+        entry.Tweak.Initialize(entry.Host);
+        _activeTweakIds.Add(tweakId);
+    }
+
+    public void Disable(string tweakId)
+    {
+        if (!_tweakEntries.TryGetValue(tweakId, out var entry)) return;
+        if (!_activeTweakIds.Contains(tweakId)) return;
+
+        _settings.App.DisabledTweakIds.Add(tweakId);
+        _settings.SaveApp();
+        entry.Tweak.Shutdown();
+        _activeTweakIds.Remove(tweakId);
+    }
+
+    private static bool ShouldOpenWindowOnStartup(bool launchedAsAutostart)
     {
         if (launchedAsAutostart) return false;
 #if DEBUG
@@ -96,8 +130,9 @@ internal sealed class StampsApplicationContext : IDisposable
 
         _singleInstance.ActivationRequested -= OnActivationRequested;
 
-        foreach (var tweak in _initializedTweaks)
-            try { tweak.Shutdown(); } catch { }
+        foreach (var id in _activeTweakIds)
+            if (_tweakEntries.TryGetValue(id, out var entry))
+                try { entry.Tweak.Shutdown(); } catch { }
 
         _tray.Dispose();
         _mainWindow.Dispose();

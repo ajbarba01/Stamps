@@ -51,36 +51,30 @@
     </Style>
 
 
-    <!-- Tab item: centered label, hover highlight, accent underline on selected -->
+    <!-- Tab item: centered label, hover highlight, accent bottom border on selected -->
     <Style x:Key="StampsTabItemStyle" TargetType="TabItem">
-        <Setter Property="Padding"                    Value="20,10"/>
-        <Setter Property="FontFamily"                 Value="{DynamicResource Stamps.FontFamily}"/>
-        <Setter Property="FontSize"                   Value="{DynamicResource Stamps.FontSize.Body}"/>
-        <Setter Property="Foreground"                 Value="{DynamicResource Stamps.Text.Secondary}"/>
-        <Setter Property="Background"                 Value="Transparent"/>
-        <Setter Property="BorderThickness"            Value="0"/>
-        <Setter Property="Cursor"                     Value="Hand"/>
+        <Setter Property="Padding"        Value="20,10"/>
+        <Setter Property="FontFamily"     Value="{DynamicResource Stamps.FontFamily}"/>
+        <Setter Property="FontSize"       Value="{DynamicResource Stamps.FontSize.Body}"/>
+        <Setter Property="Background"     Value="Transparent"/>
+        <Setter Property="Foreground"     Value="{DynamicResource Stamps.Text.Secondary}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,2"/>
+        <Setter Property="BorderBrush"    Value="Transparent"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TabItem">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="2"/>
-                        </Grid.RowDefinitions>
-                        <Border x:Name="Bg" Grid.Row="0"
-                                Background="Transparent"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"
-                                              ContentSource="Header"/>
-                        </Border>
-                        <Rectangle x:Name="Indicator" Grid.Row="1"
-                                   Fill="{DynamicResource Stamps.Accent.Primary}"
-                                   Visibility="Collapsed"/>
-                    </Grid>
+                    <Border x:Name="Bg"
+                            Cursor="Hand"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          ContentSource="Header"/>
+                    </Border>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
+                        <Trigger SourceName="Bg" Property="IsMouseOver" Value="True">
                             <Setter TargetName="Bg" Property="Background"
                                     Value="{DynamicResource Stamps.Background.Elevated}"/>
                             <Setter Property="Foreground"
@@ -89,7 +83,8 @@
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Foreground"
                                     Value="{DynamicResource Stamps.Text.Primary}"/>
-                            <Setter TargetName="Indicator" Property="Visibility" Value="Visible"/>
+                            <Setter Property="BorderBrush"
+                                    Value="{DynamicResource Stamps.Accent.Primary}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -99,7 +94,7 @@
 
     <!-- Tab control: no border, tab strip + 1px separator + content -->
     <Style x:Key="StampsTabControlStyle" TargetType="TabControl">
-        <Setter Property="Background"      Value="Transparent"/>
+        <Setter Property="Background"      Value="{x:Null}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding"         Value="0"/>
         <Setter Property="Template">
