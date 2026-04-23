@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>Stamps</AssemblyName>
@@ -15,16 +15,17 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Assets\app.ico" />
+    <!-- Prevent SDK from auto-generating a second Main() from App.xaml; SDK glob still includes it as Page -->
+    <ApplicationDefinition Remove="App\App.xaml" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Markdig is used as a parser only; READMEs are rendered into native WinForms
-         controls by Ui/Controls/MarkdownView so we do not require a browser runtime. -->
     <PackageReference Include="Markdig" Version="0.37.0" />
+    <PackageReference Include="WPF-UI" Version="3.0.5" />
+    <PackageReference Include="H.NotifyIcon.Wpf" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Tweak README files ship alongside the exe so they can be edited at runtime. -->
     <None Update="Tweaks\**\README.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

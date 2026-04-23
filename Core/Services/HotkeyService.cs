@@ -1,24 +1,9 @@
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
+using System.Windows.Input;
+using System.Windows.Interop;
 
 namespace Stamps.Core.Services;
 
-/// <summary>
-/// Default <see cref="IHotkeyService"/> built on <c>RegisterHotKey</c>. A single hidden
-/// <see cref="NativeWindow"/> receives all <c>WM_HOTKEY</c> messages; callbacks are invoked
-/// synchronously on the UI thread.
-/// </summary>
-/// <remarks>
-/// <para>
-/// Must be constructed on the thread that hosts the Windows Forms message pump (the UI
-/// thread). The native window is created eagerly in the constructor.
-/// </para>
-/// <para>
-/// Each successful registration is assigned a monotonically increasing id; ids are never
-/// recycled within a process lifetime. This is fine because the id space is 32-bit and a
-/// human will never create that many bindings.
-/// </para>
-/// </remarks>
 internal sealed class HotkeyService : IHotkeyService, IDisposable
 {
     private const int WmHotKey = 0x0312;
@@ -59,7 +44,7 @@ internal sealed class HotkeyService : IHotkeyService, IDisposable
 
         int id = _nextId++;
         uint mods = (uint)hotkey.Modifiers | ModNoRepeat;
-        if (!RegisterHotKey(_window.Handle, id, mods, (uint)hotkey.Key))
+        if (!RegisterHotKey(_window.Handle, id, mods, (uint)KeyInterop.VirtualKeyFromKey(hotkey.Key)))
         {
             _logger.Warn($"RegisterHotKey refused {hotkey} (Win32 error {Marshal.GetLastWin32Error()}).");
             result = HotkeyBindResult.SystemRefused;
@@ -83,15 +68,10 @@ internal sealed class HotkeyService : IHotkeyService, IDisposable
 
     private void OnHotkeyMessage(int id)
     {
+        if (HotkeyCaptureSuppressor.IsSuppressed) return;
         if (!_byId.TryGetValue(id, out var binding)) return;
-        try
-        {
-            binding.OnPressed();
-        }
-        catch (Exception ex)
-        {
-            _logger.Error($"Hotkey callback for {binding.Hotkey} threw.", ex);
-        }
+        try { binding.OnPressed(); }
+        catch (Exception ex) { _logger.Error($"Hotkey callback for {binding.Hotkey} threw.", ex); }
     }
 
     public void Dispose()
@@ -116,10 +96,7 @@ internal sealed class HotkeyService : IHotkeyService, IDisposable
 
         public Binding(int id, Hotkey hotkey, Action onPressed, HotkeyService owner)
         {
-            Id = id;
-            Hotkey = hotkey;
-            OnPressed = onPressed;
-            _owner = owner;
+            Id = id; Hotkey = hotkey; OnPressed = onPressed; _owner = owner;
         }
 
         public void Dispose()
@@ -130,28 +107,42 @@ internal sealed class HotkeyService : IHotkeyService, IDisposable
         }
     }
 
-    /// <summary>
-    /// Invisible top-level window whose only job is to receive <c>WM_HOTKEY</c> messages.
-    /// A top-level window (not <c>HWND_MESSAGE</c>) is used because message-only windows
-    /// are not reliably routed hotkey broadcasts on all Windows versions.
-    /// </summary>
-    private sealed class MessageWindow : NativeWindow, IDisposable
+    private sealed class MessageWindow : IDisposable
     {
+        private readonly HwndSource _source;
         private readonly Action<int> _onHotkey;
+
+        public IntPtr Handle => _source.Handle;
 
         public MessageWindow(Action<int> onHotkey)
         {
             _onHotkey = onHotkey;
-            CreateHandle(new CreateParams());
+            _source = new HwndSource(new HwndSourceParameters("Stamps-HotkeyWindow")
+            {
+                WindowStyle = 0,
+                ExtendedWindowStyle = 0,
+                Width = 0,
+                Height = 0,
+                PositionX = -32000,
+                PositionY = -32000,
+            });
+            _source.AddHook(WndProc);
         }
 
-        protected override void WndProc(ref Message m)
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
-            if (m.Msg == WmHotKey)
-                _onHotkey((int)m.WParam);
-            base.WndProc(ref m);
+            if (msg == WmHotKey)
+            {
+                _onHotkey((int)wParam);
+                handled = true;
+            }
+            return IntPtr.Zero;
         }
 
-        public void Dispose() => DestroyHandle();
+        public void Dispose()
+        {
+            _source.RemoveHook(WndProc);
+            _source.Dispose();
+        }
     }
 }

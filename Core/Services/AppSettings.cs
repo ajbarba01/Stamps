@@ -17,7 +17,7 @@ public sealed class AppSettings
     public bool LaunchMinimized { get; set; } = false;
 
     /// <summary>Notification style: <c>"brief"</c>, <c>"silent"</c>, or future values.</summary>
-    public string NotificationStyle { get; set; } = "brief";
+    public string NotificationStyle { get; set; } = "Brief";
 
     /// <summary>UI theme: <c>"system"</c>, <c>"light"</c>, <c>"dark"</c>.</summary>
     public string Theme { get; set; } = "system";

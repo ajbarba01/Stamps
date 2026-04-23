@@ -1,0 +1,14 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <SolidColorBrush x:Key="Stamps.Background.Primary"   Color="#F3F3F3"/>
+    <SolidColorBrush x:Key="Stamps.Background.Secondary" Color="#EBEBEB"/>
+    <SolidColorBrush x:Key="Stamps.Background.Card"      Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Stamps.Background.Elevated"  Color="#E0E0E0"/>
+    <SolidColorBrush x:Key="Stamps.Text.Primary"         Color="#1A1A1A"/>
+    <SolidColorBrush x:Key="Stamps.Text.Secondary"       Color="#5E5E5E"/>
+    <SolidColorBrush x:Key="Stamps.Text.Disabled"        Color="#9E9E9E"/>
+    <SolidColorBrush x:Key="Stamps.Accent.Primary"       Color="#0067C0"/>
+    <SolidColorBrush x:Key="Stamps.Border.Default"       Color="#D8D8D8"/>
+
+</ResourceDictionary>

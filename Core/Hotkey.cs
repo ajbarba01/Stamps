@@ -1,25 +1,13 @@
 using System.Text;
-using System.Windows.Forms;
+using System.Windows.Input;
 
 namespace Stamps.Core;
 
-/// <summary>
-/// A platform-independent description of a global hotkey: a non-empty set of modifier keys
-/// combined with a single trigger key.
-/// </summary>
-/// <remarks>
-/// This type is a pure value — it does not register or unregister anything with the OS.
-/// Registration is the responsibility of <see cref="Services.IHotkeyService"/>.
-/// </remarks>
-public readonly record struct Hotkey(HotkeyModifiers Modifiers, Keys Key)
+public readonly record struct Hotkey(HotkeyModifiers Modifiers, Key Key)
 {
-    /// <summary>
-    /// Returns a human-readable string such as <c>Ctrl+Alt+S</c>. Stable across locales
-    /// (uses invariant key names) so the output is safe to persist to settings files.
-    /// </summary>
     public override string ToString()
     {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         if (Modifiers.HasFlag(HotkeyModifiers.Control)) sb.Append("Ctrl+");
         if (Modifiers.HasFlag(HotkeyModifiers.Alt))     sb.Append("Alt+");
         if (Modifiers.HasFlag(HotkeyModifiers.Shift))   sb.Append("Shift+");
@@ -28,10 +16,6 @@ public readonly record struct Hotkey(HotkeyModifiers Modifiers, Keys Key)
         return sb.ToString();
     }
 
-    /// <summary>
-    /// Parses a string previously produced by <see cref="ToString"/> (or any equivalent
-    /// <c>Mod+Mod+Key</c> form). Returns <c>false</c> for malformed input; never throws.
-    /// </summary>
     public static bool TryParse(string? text, out Hotkey result)
     {
         result = default;
@@ -54,17 +38,13 @@ public readonly record struct Hotkey(HotkeyModifiers Modifiers, Keys Key)
         }
 
         if (mods == HotkeyModifiers.None) return false;
-        if (!Enum.TryParse(parts[^1], ignoreCase: true, out Keys key)) return false;
+        if (!Enum.TryParse(parts[^1], ignoreCase: true, out Key key)) return false;
 
         result = new Hotkey(mods, key);
         return true;
     }
 }
 
-/// <summary>
-/// Modifier keys usable in a global hotkey. Values intentionally match the Win32
-/// <c>MOD_*</c> flags so they can be passed to <c>RegisterHotKey</c> without a mapping step.
-/// </summary>
 [Flags]
 public enum HotkeyModifiers : uint
 {

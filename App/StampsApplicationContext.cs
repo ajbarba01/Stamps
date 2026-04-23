@@ -1,27 +1,15 @@
-using System.Windows.Forms;
+using System.IO;
+using System.Windows;
+using System.Windows.Threading;
 using Stamps.Core;
 using Stamps.Core.Services;
+using Stamps.Tweaks.Snip;
 using Stamps.Ui;
+using Stamps.Ui.Theme;
 
 namespace Stamps.App;
 
-/// <summary>
-/// The composition root. Wires every long-lived service and the tray in dependency order,
-/// routes single-instance activation signals to the main window, and tears everything down
-/// on exit. Owns the synchronisation context used to marshal background callbacks.
-/// </summary>
-/// <remarks>
-/// <para>
-/// Services are created inside the constructor rather than injected because there is
-/// exactly one composition root and it is the rightful owner of lifetimes. Adding DI later
-/// (for tests, for plugins) is a refactor localised to this file.
-/// </para>
-/// <para>
-/// The <see cref="IMainWindow"/> implementation (<see cref="MainWindow"/>) is the only
-/// reference from <c>App/</c> into <c>Ui/</c>; everything else flows through the interface.
-/// </para>
-/// </remarks>
-internal sealed class StampsApplicationContext : ApplicationContext
+internal sealed class StampsApplicationContext : IDisposable
 {
     private readonly FileLogger _logger;
     private readonly SettingsStore _settings;
@@ -31,8 +19,9 @@ internal sealed class StampsApplicationContext : ApplicationContext
     private readonly TrayIconController _tray;
     private readonly NotifyIconNotifier _notifier;
     private readonly TweakRegistry _tweakRegistry;
+    private readonly List<ITweak> _initializedTweaks = new();
     private readonly SingleInstance _singleInstance;
-    private readonly SynchronizationContext _uiContext;
+    private readonly Dispatcher _dispatcher;
     private bool _disposed;
 
     public StampsApplicationContext(SingleInstance singleInstance, bool launchedAsAutostart)
@@ -43,9 +32,7 @@ internal sealed class StampsApplicationContext : ApplicationContext
                 "StampsApplicationContext must be constructed on the primary instance only.");
 
         _singleInstance = singleInstance;
-        _uiContext = SynchronizationContext.Current
-            ?? throw new InvalidOperationException(
-                "StampsApplicationContext must be constructed on a thread with a WinForms sync context.");
+        _dispatcher = Dispatcher.CurrentDispatcher;
 
         var dataDir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -62,46 +49,59 @@ internal sealed class StampsApplicationContext : ApplicationContext
         _tweakRegistry = new TweakRegistry();
 
         _mainWindow = new MainWindow(_tweakRegistry, _settings, _startup, logDir);
+        ThemeService.Apply(AppTheme.System);
         _tray = new TrayIconController(_mainWindow, _startup);
-        _notifier = new NotifyIconNotifier(_tray.NotifyIcon);
+        _notifier = new NotifyIconNotifier(_tray.TaskbarIcon);
+
+        // Tweaks registered after _notifier is ready (requires the tray icon).
+        RegisterTweaks();
 
         _singleInstance.ActivationRequested += OnActivationRequested;
-
-        // Phase 3 will call _tweakRegistry.Register(new SnipTweak(...)) here and initialize
-        // each tweak with a TweakHost bound to its own settings scope.
 
         if (ShouldOpenWindowOnStartup(launchedAsAutostart))
             _mainWindow.ShowOrFocus();
     }
 
+    private void RegisterTweaks()
+    {
+        var snip = new SnipTweak();
+        _tweakRegistry.Register(snip);
+        var host = new TweakHost(_hotkeys, _notifier, _settings.ScopeFor(snip.Id), _logger);
+        snip.Initialize(host);
+        _initializedTweaks.Add(snip);
+    }
+
     private bool ShouldOpenWindowOnStartup(bool launchedAsAutostart)
     {
         if (launchedAsAutostart) return false;
+#if DEBUG
+        return true;
+#else
         if (_settings.App.LaunchMinimized) return false;
         return true;
+#endif
     }
 
     private void OnActivationRequested(object? sender, EventArgs e)
     {
-        // Event is raised on the single-instance listener thread; marshal to the UI thread.
-        _uiContext.Post(_ => _mainWindow.ShowOrFocus(), state: null);
+        _dispatcher.BeginInvoke(_mainWindow.ShowOrFocus);
     }
 
-    protected override void Dispose(bool disposing)
+    public void Dispose()
     {
-        if (!_disposed && disposing)
-        {
-            _disposed = true;
-            try { _logger.Info("Stamps shutting down."); } catch { /* ignore */ }
+        if (_disposed) return;
+        _disposed = true;
 
-            _singleInstance.ActivationRequested -= OnActivationRequested;
+        try { _logger.Info("Stamps shutting down."); } catch { }
 
-            // Reverse order of construction.
-            _tray.Dispose();
-            _mainWindow.Dispose();
-            _hotkeys.Dispose();
-            _logger.Dispose();
-        }
-        base.Dispose(disposing);
+        _singleInstance.ActivationRequested -= OnActivationRequested;
+
+        foreach (var tweak in _initializedTweaks)
+            try { tweak.Shutdown(); } catch { }
+
+        _tray.Dispose();
+        _mainWindow.Dispose();
+        _hotkeys.Dispose();
+        _logger.Dispose();
     }
 }

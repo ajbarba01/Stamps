@@ -1,4 +1,4 @@
-using System.Windows.Forms;
+using System.Drawing;
 
 namespace Stamps.Core;
 
@@ -74,7 +74,7 @@ public interface ITweak
     /// Return <c>null</c> (default) to have the host render <see cref="Settings"/>; return
     /// a control to replace the auto-rendered panel entirely.
     /// </summary>
-    Control? CreateCustomSettingsControl() => null;
+    object? CreateCustomSettingsControl() => null;
 
     /// <summary>
     /// Called once, on the UI thread, before any actions are invoked. Implementations
