@@ -57,7 +57,7 @@ public partial class MainWindow : Window, IMainWindow
         Dispatcher.Invoke(Close);
     }
 
-    private void OnExit(object sender, RoutedEventArgs e)
+    private void OnShutdown(object sender, RoutedEventArgs e)
     {
         Application.Current.Shutdown();
     }

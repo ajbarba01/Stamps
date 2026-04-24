@@ -5,6 +5,7 @@ using Stamps.Core;
 using Stamps.Core.Services;
 using Stamps.Tweaks.Alias;
 using Stamps.Tweaks.Snip;
+using Stamps.Tweaks.Launch;
 using Stamps.Ui;
 using Stamps.Ui.Theme;
 
@@ -70,6 +71,7 @@ internal sealed class StampsApplicationContext : IDisposable, ITweakManager
     {
         AddTweak(new SnipTweak());
         AddTweak(new AliasTweak());
+        AddTweak(new LaunchTweak());
     }
 
     private void AddTweak(ITweak tweak)

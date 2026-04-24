@@ -87,13 +87,13 @@
 
                     <!--  BOTTOM EXIT  -->
                     <Button
-                        x:Name="ExitButton"
+                        x:Name="ShutdownButton"
                         Grid.Row="1"
                         Margin="8,8,8,8"
                         Padding="16,8"
                         HorizontalAlignment="Stretch"
-                        Click="OnExit"
-                        Content="Exit" />
+                        Click="OnShutdown"
+                        Content="Shutdown" />
                 </Grid>
             </DockPanel>
         </Border>
