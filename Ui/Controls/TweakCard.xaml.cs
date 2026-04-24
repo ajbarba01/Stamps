@@ -32,9 +32,9 @@ public partial class TweakCard : UserControl
         MouseLeftButtonDown += OnCardMouseDown;
         MouseLeftButtonUp += OnCardMouseUp;
         CardBorder.MouseEnter += (_, _) =>
-            CardBorder.Background = (Brush)FindResource("Stamps.Background.Elevated");
+            CardBorder.SetResourceReference(Border.BackgroundProperty, "Stamps.Background.Elevated");
         CardBorder.MouseLeave += (_, _) =>
-            CardBorder.Background = (Brush)FindResource("Stamps.Background.Card");
+            CardBorder.SetResourceReference(Border.BackgroundProperty, "Stamps.Background.Card");
     }
 
     private void OnCardMouseDown(object sender, MouseButtonEventArgs e)

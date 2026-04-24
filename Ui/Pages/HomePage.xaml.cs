@@ -12,6 +12,7 @@ public partial class HomePage : UserControl, IPage
     private readonly ISettingsStore _settings;
     private readonly ITweakManager _tweakManager;
     private readonly Action<ITweak> _onOpenTweak;
+    private readonly Dictionary<string, TweakCard> _cardCache = new();
 
     public string Title => "Tweaks";
 
@@ -67,9 +68,13 @@ public partial class HomePage : UserControl, IPage
 
         foreach (var t in matches)
         {
-            var card = new TweakCard(t, IsTweakEnabled(t.Id));
-            card.OpenRequested += (_, _) => _onOpenTweak(t);
-            card.EnableToggled += (_, en) => SetTweakEnabled(t.Id, en);
+            if (!_cardCache.TryGetValue(t.Id, out var card))
+            {
+                card = new TweakCard(t, IsTweakEnabled(t.Id));
+                card.OpenRequested += (_, _) => _onOpenTweak(t);
+                card.EnableToggled += (_, en) => SetTweakEnabled(t.Id, en);
+                _cardCache[t.Id] = card;
+            }
             TweakList.Children.Add(card);
         }
     }
